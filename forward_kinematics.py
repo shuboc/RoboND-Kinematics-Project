@@ -29,20 +29,6 @@ T1_2 = Matrix([[cos(q2),                        -sin(q2),            0,         
                [                  0,                   0,            0,               1]])
 T1_2 = T1_2.subs(s)
 
-## Test
-
-T0_1 = Matrix([[cos(q1),                        -sin(q1),            0,              a0],
-               [sin(q1)*cos(alpha0), cos(q1)*cos(alpha0), -sin(alpha0), -sin(alpha0)*d1],
-               [sin(q1)*sin(alpha0), cos(q1)*sin(alpha0),  cos(alpha0),  cos(alpha0)*d1],
-               [                  0,                   0,            0,               1]])
-T0_1 = T0_1.subs(s)
-
-T1_2 = Matrix([[cos(q2),                        -sin(q2),            0,              a1],
-               [sin(q2)*cos(alpha1), cos(q2)*cos(alpha1), -sin(alpha1), -sin(alpha1)*d2],
-               [sin(q2)*sin(alpha1), cos(q2)*sin(alpha1),  cos(alpha1),  cos(alpha1)*d2],
-               [                  0,                   0,            0,               1]])
-T1_2 = T1_2.subs(s)
-
 T2_3 = Matrix([[cos(q3),                        -sin(q3),            0,              a2],
                [sin(q3)*cos(alpha2), cos(q3)*cos(alpha2), -sin(alpha2), -sin(alpha2)*d3],
                [sin(q3)*sin(alpha2), cos(q3)*sin(alpha2),  cos(alpha2),  cos(alpha2)*d3],

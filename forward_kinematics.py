@@ -74,4 +74,17 @@ print("T0_5 = ", T0_5.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
 print("T0_6 = ", T0_6.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
 print("T0_G = ", T0_G.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
 
-## TODO: correction term
+# correction term
+R_z = Matrix([[cos(np.pi), -sin(np.pi), 0, 0],
+              [sin(np.pi),  cos(np.pi), 0, 0],
+              [         0,           0, 1, 0],
+              [         0,           0, 0, 1]])
+
+R_y = Matrix([[ cos(-np.pi/2), 0, sin(-np.pi/2), 0],
+              [             0, 1,             0, 0],
+              [-sin(-np.pi/2), 0, cos(-np.pi/2), 0],
+              [             0, 0,             0, 1]])
+
+R_corr = simplify(R_z * R_y)
+
+T_total = simplify(T0_G * R_corr)

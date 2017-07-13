@@ -88,3 +88,5 @@ R_y = Matrix([[ cos(-np.pi/2), 0, sin(-np.pi/2), 0],
 R_corr = simplify(R_z * R_y)
 
 T_total = simplify(T0_G * R_corr)
+
+print("T_total = ", T_total.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))

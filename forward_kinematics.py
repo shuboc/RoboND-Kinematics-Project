@@ -68,20 +68,20 @@ T6_G = Matrix([[cos(q7),                        -sin(q7),            0,         
                [                  0,                   0,            0,               1]])
 T6_G = T6_G.subs(s)
 
-T0_2 = simplify(T0_1 * T1_2)
-T0_3 = simplify(T0_2 * T2_3)
-T0_4 = simplify(T0_3 * T3_4)
-T0_5 = simplify(T0_4 * T4_5)
-T0_6 = simplify(T0_5 * T5_6)
-T0_G = simplify(T0_6 * T6_G)
+# T0_2 = simplify(T0_1 * T1_2)
+# T0_3 = simplify(T0_2 * T2_3)
+# T0_4 = simplify(T0_3 * T3_4)
+# T0_5 = simplify(T0_4 * T4_5)
+# T0_6 = simplify(T0_5 * T5_6)
+# T0_G = simplify(T0_6 * T6_G)
 
 print("T0_1 = ", T0_1.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_2 = ", T0_2.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_3 = ", T0_3.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_4 = ", T0_4.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_5 = ", T0_5.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_6 = ", T0_6.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-print("T0_G = ", T0_G.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+print("T1_2 = ", T1_2.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+print("T2_3 = ", T2_3.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+print("T3_4 = ", T3_4.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+print("T4_5 = ", T4_5.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+print("T5_6 = ", T5_6.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+print("T6_G = ", T6_G.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
 
 # correction term
 R_z = Matrix([[cos(np.pi), -sin(np.pi), 0, 0],

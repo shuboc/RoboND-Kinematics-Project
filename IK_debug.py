@@ -61,7 +61,95 @@ def test_code(test_case):
     ########################################################################################
     ## Insert IK code here starting at: Define DH parameter symbols
 
-    ## YOUR CODE HERE!
+    # Define DH param symbols
+    # Joint angle symbols
+    q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')
+    d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8')
+    a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7')
+    alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7')
+
+    # Modified DH params
+    s = {alpha0: 0,     a0: 0,      d1: 0.75,
+         alpha1: -pi/2, a1: 0.35,   d2: 0,     q2: q2-pi/2,
+         alpha2: 0,     a2: 1.25,   d3: 0,
+         alpha3: -pi/2, a3: -0.054, d4: 1.5,
+         alpha4: pi/2,  a4: 0,      d5: 0,
+         alpha5: -pi/2, a5: 0,      d6: 0,
+         alpha6: 0,     a6: 0,      d7: 0.303, q7: 0
+    }
+
+    # Define Modified DH Transformation matrix
+    def create_ht_from_dh_params(alpha, a, d, q):
+        return Matrix([[cos(q),                      -sin(q),           0,             a],
+                       [sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
+                       [sin(q)*sin(alpha), cos(q)*sin(alpha),  cos(alpha),  cos(alpha)*d],
+                       [                0,                 0,           0,             1]])
+
+
+    # Create individual transformation matrices
+    T0_1 = create_ht_from_dh_params(alpha0, a0, d1, q1)
+    T0_1 = T0_1.subs(s)
+
+    T1_2 = create_ht_from_dh_params(alpha1, a1, d2, q2)
+    T1_2 = T1_2.subs(s)
+
+    T2_3 = create_ht_from_dh_params(alpha2, a2, d3, q3)
+    T2_3 = T2_3.subs(s)
+
+    T3_4 = create_ht_from_dh_params(alpha3, a3, d4, q4)
+    T3_4 = T3_4.subs(s)
+
+    T4_5 = create_ht_from_dh_params(alpha4, a4, d5, q5)
+    T4_5 = T4_5.subs(s)
+
+    T5_6 = create_ht_from_dh_params(alpha5, a5, d6, q6)
+    T5_6 = T5_6.subs(s)
+
+    T6_G = create_ht_from_dh_params(alpha6, a6, d7, q7)
+    T6_G = T6_G.subs(s)
+
+    # correction term
+    R_z = Matrix([[cos(np.pi), -sin(np.pi), 0, 0],
+                  [sin(np.pi),  cos(np.pi), 0, 0],
+                  [         0,           0, 1, 0],
+                  [         0,           0, 0, 1]])
+
+    R_y = Matrix([[ cos(-np.pi/2), 0, sin(-np.pi/2), 0],
+                  [             0, 1,             0, 0],
+                  [-sin(-np.pi/2), 0, cos(-np.pi/2), 0],
+                  [             0, 0,             0, 1]])
+
+    R_corr = simplify(R_z * R_y)
+
+    '''
+    Format of test case is [ [[EE position],[EE orientation as quaternions]],[WC location],[joint angles]]
+    [[[2.16135,-1.42635,1.55109],
+                      [0.708611,0.186356,-0.157931,0.661967]],
+                      [1.89451,-1.44302,1.69366],
+                      [-0.65,0.45,-0.36,0.95,0.79,0.49]]
+    '''
+    # Extract end-effector position and orientation from request
+    # px,py,pz = end-effector position
+    # roll, pitch, yaw = end-effector orientation
+    # px = req.poses[x].position.x
+    # py = req.poses[x].position.y
+    # pz = req.poses[x].position.z
+    [[px, py, pz], quaternion] = test_case[0]
+    (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(quaternion)
+
+    print px, py, pz, roll, pitch, yaw
+
+    # (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
+    #     [req.poses[x].orientation.x, req.poses[x].orientation.y,
+    #         req.poses[x].orientation.z, req.poses[x].orientation.w])
+
+    # Calculate joint angles using Geometric IK method
+
+
+
+
+    # Populate response for the IK request
+    # In the next line replace theta1,theta2...,theta6 by your joint angle variables
 
     ## Ending at: Populate response for the IK request
     ########################################################################################

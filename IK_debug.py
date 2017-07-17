@@ -176,30 +176,23 @@ def test_code(test_case):
 
     print "WC =", wx, wy, wz
 
-    qq1 = atan2(wy, wx)
-    #if qq1 > pi/2:
-    #    qq1 -= pi
-
-    x = (sqrt(wx * wx + wy * wy) - 0.35) #* (-1 if wx < 0 else 1)
+    x = (sqrt(wx * wx + wy * wy) - 0.35)
     z = wz - 0.75
-    print 'x =', x
-    print 'z =', z
     delta = atan2(0.054, 1.5)
+    #print 'x =', x
+    #print 'z =', z
+    #print 'delta =', delta
     A = sqrt(0.054 * 0.054 + 1.5 * 1.5)
     B = sqrt(x * x + z * z)
     C = 1.25
-    print "atan2(z, x) =", atan2(z, x)
 
-    print "acos((B*B + C*C - A*A) / (2 * B * C)) =", acos((B*B + C*C - A*A) / (2 * B * C))
-
-    qq2 = asin((B*B + C*C - A*A) / (2 * B * C)) - atan2(z, x)
-    #qq2 = acos((B*B + C*C - A*A) / (2 * B * C)) - atan2(z, x) - pi/2
-    qq3 = asin((A*A + C*C - B*B) / (2 * A * C)) - delta
+    qq1 = atan2(wy, wx)
+    qq2 = pi/2 - acos((B*B + C*C - A*A) / (2 * B * C)) - atan2(z, x)
+    qq3 = pi/2 - acos((A*A + C*C - B*B) / (2 * A * C)) - delta
 
     print 'qq1 = ', qq1
     print 'qq2 =', qq2
     print 'qq3 =', qq3
-    print 'q =', [-0.79,-0.11,-2.33,1.94,1.14,-3.68]
 
     T0_3 = T0_1 * T1_2 * T2_3
     T0_3 = T0_3.subs({q1: qq1, q2: qq2, q3: qq3}) 
@@ -207,25 +200,19 @@ def test_code(test_case):
 
     R3_6 = R0_3.inv('LU') * R_rpy 
 
-    #qq4 = acos(-R3_6[0,2] / sqrt(1 - R3_6[1,2] * R3_6[1,2]))
     qq4 = atan2(R3_6[2,2], -R3_6[0,2])
-    #qq4 = atan2(-R3_6[2,2], R3_6[0,2])
-    #qq4 = asin(R3_6[2,2] / sqrt(1 - R3_6[1,2] * R3_6[1,2]))
-    #qq4 = atan(-R3_6[2,2]/R3_6[0,2])
-    qq5 = acos(R3_6[1,2])
-    #qq6 = acos(R3_6[1,0] / sqrt(1 - R3_6[1,2] * R3_6[1,2]))
+    qq5 = atan2(sqrt(R3_6[0,2] * R3_6[0,2] + R3_6[2,2] * R3_6[2,2]), R3_6[1,2])  
     qq6 = atan2(-R3_6[1,1], R3_6[1,0])
 
     print 'qq4 =', qq4
     print 'qq5 =', qq5
     print 'qq6 =', qq6
-    #print "Test case1:", [-0.65,0.45,-0.36,0.95,0.79,0.49]
 
     T0_5 = T0_1 * T1_2 * T2_3 * T3_4 * T4_5
     T0_5 = T0_5.subs({q1: qq1, q2: qq2, q3: qq3, q4: qq4, q5: qq5}) * R_corr
     #print "T0_5 =", T0_5
-    print 'actual wc   =', T0_5[0,3], T0_5[1,3], T0_5[2,3]
-    print 'expected wc =', wx, wy, wz
+    #print 'actual wc   =', T0_5[0,3], T0_5[1,3], T0_5[2,3]
+    #print 'expected wc =', wx, wy, wz
 
     # Populate response for the IK request
     # In the next line replace theta1,theta2...,theta6 by your joint angle variables
@@ -303,6 +290,6 @@ def test_code(test_case):
 
 if __name__ == "__main__":
     # Change test case number for different scenarios
-    test_case_number = 3
+    test_case_number = 1
 
     test_code(test_cases[test_case_number])

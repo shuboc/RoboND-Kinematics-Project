@@ -21,6 +21,10 @@
 [image2]: ./misc_images/misc2.png
 [image3]: ./misc_images/misc3.png
 [dh-reference-frames]: ./misc_images/dh-reference-frames.JPG
+[ht_ind]: ./misc_images/ht_ind.png
+[ht_corr]: ./misc_images/ht_corr.png
+[ht_total]: ./misc_images/ht_total.png
+[dh-transform-matrix]: ./misc_images/dh-transform-matrix.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -67,12 +71,47 @@ q[i] is the angle between X[i-1] and X[i] measured about Z[i]. For a revolute jo
 
 #### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
 
-Here's | A | Snappy | Table
---- | --- | --- | ---
-1 | `highlight` | **bold** | 7.41
-2 | a | b | c
-3 | *italic* | text | 403
-4 | 2 | 3 | abcd
+The individual transform is given as follows:
+
+![Individual HT][ht_ind]
+
+The total transform between base_link and gripper_link is given as follows:
+
+![Total HT][ht_total]
+
+Given the DH table, the individual transform can be determined as follows:
+
+![DH Transform Matrix][dh-transform-matrix]
+
+Therefor, individual transforms can be represented with the following python code, take T0_1 for example:
+
+```
+s = {alpha0: 0,     a0: 0,      d1: 0.75,
+     alpha1: -pi/2, a1: 0.35,   d2: 0,     q2: q2-pi/2,
+     alpha2: 0,     a2: 1.25,   d3: 0,
+     alpha3: -pi/2, a3: -0.054, d4: 1.5,
+     alpha4: pi/2,  a4: 0,      d5: 0,
+     alpha5: -pi/2, a5: 0,      d6: 0,
+     alpha6: 0,     a6: 0,      d7: 0.303, q7: 0
+}
+
+T0_1 = Matrix([[cos(q1),                        -sin(q1),            0,              a0],
+               [sin(q1)*cos(alpha0), cos(q1)*cos(alpha0), -sin(alpha0), -sin(alpha0)*d1],
+               [sin(q1)*sin(alpha0), cos(q1)*sin(alpha0),  cos(alpha0),  cos(alpha0)*d1],
+               [                  0,                   0,            0,               1]])
+
+T0_1 = T0_1.subs(s)
+```
+
+Furthermore, the actual value can be calculated by `evalf`:
+
+```
+T0_1.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
+```
+
+The total transform can be derived by multiplying all transforms and a correction matrix, which consists of an 180 degree rotation about z-axis and an -90 degree rotation about y-axis:
+
+![Correction HT][ht_corr]
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
 

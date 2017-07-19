@@ -47,7 +47,7 @@ i   | alpha[i-1] | a[i-1] | d[i]  | q[i]
 4   | -pi/2      | -0.054 | 1.5   | q4
 5   | pi/2       | 0      | 0     | q5
 6   | -pi/2      | 0      | 0     | q6
-G   | 0          | 0      | 0.2305| 0
+G   | 0          | 0      | 0.303 | 0
 
 The link lengths and offsets can be derived by looking into the urdf file:
 
@@ -56,7 +56,7 @@ The link lengths and offsets can be derived by looking into the urdf file:
 * a2 = z offset of joint 3 = 1.25
 * a3 = z offset of joint 4 = -0.054
 * d4 = (x offset of joint 4) + (x offset of joint 5) = 0.96 + 0.54 = 1.5
-* dG = (x offset of joint 6) + (x offset of the gripper joint) = 0.193 + 0.0375 = 0.2305
+* dG = (x offset of joint 6) + (x offset of the gripper joint) = 0.193 + 0.11 = 0.303
 
 alpha[i-1] is the angle between Z[i-1] and Z[i] measured about X[i-1].
 

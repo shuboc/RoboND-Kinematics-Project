@@ -71,19 +71,11 @@ q[i] is the angle between X[i-1] and X[i] measured about Z[i]. For a revolute jo
 
 #### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
 
-The individual transform is given as follows:
-
-![Individual HT][ht_ind]
-
-The total transform between base_link and gripper_link is given as follows:
-
-![Total HT][ht_total]
-
 Given the DH table, the individual transform can be determined as follows:
 
 ![DH Transform Matrix][dh-transform-matrix]
 
-Therefor, individual transforms can be represented with the following python code, take T0_1 for example:
+Therefore, individual transforms can be represented with the following python code, take T0_1 for example:
 
 ```
 s = {alpha0: 0,     a0: 0,      d1: 0.75,
@@ -103,15 +95,17 @@ T0_1 = Matrix([[cos(q1),                        -sin(q1),            0,         
 T0_1 = T0_1.subs(s)
 ```
 
-Furthermore, the actual value can be calculated by `evalf`:
+The individual transform is given as follows:
 
-```
-T0_1.evalf(subs={q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0}))
-```
+![Individual HT][ht_ind]
 
-The total transform can be derived by multiplying all transforms and a correction matrix, which consists of an 180 degree rotation about z-axis and an -90 degree rotation about y-axis:
+Next, the total transform between `base_link` and `gripper_link` can be derived by multiplying all transforms and a correction matrix, which consists of an 180-degree rotation about z-axis and an -90-degree rotation about y-axis:
 
 ![Correction HT][ht_corr]
+
+Thus, the total matrix is:
+
+`T_total = T0_1 * T1_2 * T2_3 * T3_4 * T4_5 * T5_6 * T6_G * T_corr`
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
 

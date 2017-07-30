@@ -24,7 +24,9 @@
 [ht_ind]: ./misc_images/ht_ind.png
 [ht_corr]: ./misc_images/ht_corr.png
 [ht_total]: ./misc_images/ht_total.png
+[ht_3_6]: ./misc_images/ht_3_6.png
 [dh-transform-matrix]: ./misc_images/dh-transform-matrix.png
+[ext_rot_matrix]: ./misc_images/ext_rot_matrix.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -109,9 +111,47 @@ Thus, the total matrix is:
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
 
-And here's another image! 
+Note that the IK problem has been decoupled into position and orientation problems, respectively, we can focus on the orientation problem now that the position has been found by solving `q1`, `q2` and `q3`.
 
-![alt text][image2]
+The first step is to find the overall rotation matrix from `base_link` to `gripper_link`.
+
+Assume the overall rotation angles about X, Y and Z axis are `gamma`, `beta` and `alpha`, respectively. These angles can be obtained from RPY angles in ROS. Furthermore, the roll angle from ROS is `gamma`, pitch angle is `beta`and yaw angle is `alpha`. Finally, by applying extrinsic rotation, the overall rotation matrix can be calculated as follows:
+
+![Extrinsic Rotation Matrix][ext_rot_matrix]
+
+Since the overall matrix is also the multiplication of all individual DH transforms, the following equation holds true:
+
+`R0_6 = R0_1 * R1_2 * R2_3 * R3_4 * R4_5 * R5_6 = Rrpy`,
+
+where `Rrpy` is the overall rotation matrix between `base_link` and `gripper_link`, which has been calculated as above, and `R0_3 = R0_1 * R1_2 * R2_3` can be calculated by applying `q1`, `q2` and `q3`.
+
+Thus, the rotation matrix can be calculated as follows:
+
+`R3_6 = inv(R0_3) * R0_6`.
+
+Furthermore, `R3_6 = R3_4 * R4_5 * R5_6`. It can be obtained by taking the upperleft part from `T3_6`:
+
+![HT_3_6][ht_3_6]
+
+Assume `R3_6 = [[r11 r12 r13], [r21 r22 r23], [r31 r32 r33]]`, 
+
+```
+cos(q5) = r23
+
+sin(q5) * cos(q6) = r21
+
+-cos(q4) * sin(q5) = r13
+```
+
+=>
+
+```
+q5 = arccos(r23)
+
+q6 = r21 / sqrt(1 - r23 * r23)
+
+q4 = -r13 / sqrt(1 - r23 * r23)
+```
 
 ### Project Implementation
 

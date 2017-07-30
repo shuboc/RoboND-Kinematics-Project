@@ -27,6 +27,9 @@
 [ht_3_6]: ./misc_images/ht_3_6.png
 [dh-transform-matrix]: ./misc_images/dh-transform-matrix.png
 [ext_rot_matrix]: ./misc_images/ext_rot_matrix.png
+[wc]: ./misc_images/wc.png
+[q1]: ./misc_images/q1.JPG
+[q2q3]: ./misc_images/q2q3.JPG
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -111,13 +114,72 @@ Thus, the total matrix is:
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
 
-Note that the IK problem has been decoupled into position and orientation problems, respectively, we can focus on the orientation problem now that the position has been found by solving `q1`, `q2` and `q3`.
+The first step is to find the overall rotation matrix from `base_link` to `gripper_link`, i.e., `Rrpy = Rot(Z, yaw) * Rot(Y, pitch) * Rot(X, roll) * R_corr`.
 
-The first step is to find the overall rotation matrix from `base_link` to `gripper_link`.
-
-Assume the overall rotation angles about X, Y and Z axis are `gamma`, `beta` and `alpha`, respectively. These angles can be obtained from RPY angles in ROS. Furthermore, the roll angle from ROS is `gamma`, pitch angle is `beta`and yaw angle is `alpha`. Finally, by applying extrinsic rotation, the overall rotation matrix can be calculated as follows:
+Assume the overall rotation angles about X, Y and Z axis are `gamma`, `beta` and `alpha`, respectively. These angles can be obtained from RPY angles in ROS. In fact, the roll angle from ROS is `gamma`, pitch angle is `beta`, and yaw angle is `alpha`. Finally, by applying extrinsic rotation, the overall rotation matrix can be calculated as follows:
 
 ![Extrinsic Rotation Matrix][ext_rot_matrix]
+
+```
+// TODO: Apply a correction matrix maybe?
+```
+
+**Position**
+
+Given the total transform matrix, the position of WC can be calculated as follows:
+
+![Position of Wrist Center][wc]
+
+The relation between position of WC and `q1` can be illustrated as follows:
+
+![theta1][q1]
+
+Thus,
+
+```
+theta1 = atan2(wy, wx)
+```
+
+The relation between position of WC and `q2` and `q3` can be illustrated as follows:
+
+![theta2 and theta3][q2q3]
+
+To simplify explanation, the origin of the illustrattion is at O2. Also, I define several symbols for easier computation:
+
+```
+x = sqrt(wx^2 + wy^2)
+z = wz - d1
+delta = arctan(0.054/0.96)
+```
+
+From the above figure, 
+
+```
+a = pi/2 - q2 - atan2(z/x)
+c = pi - (pi/2 + delta - q3) = pi/2 - delta + q3
+```
+
+Applying Cosine Laws to both equations will get:
+
+```
+cos(pi/2 - q2 - atan2(z/x)) = (B^2 + C^2 - A^2) / (2 * B * C)
+cos(pi/2 - delta + q3) = (A^2 + C^2 - B^2) / (2 * A * C)
+```
+
+Thus, `q2` and `q3` can be calculated as follows:
+
+```
+q2 = arcsin((B^2 + C^2 - A^2) / (2 * B * C)) - atan2(z/x)
+q3 = arcsin((A^2 + C^2 - B^2) / (2 * A * C)) - delta
+```
+
+```
+TODO: select the best solution for q2 and q3 by observing the active workspace of the arm.
+```
+
+**Orientation**
+
+Note that the IK problem has been decoupled into position and orientation problems, respectively, we can focus on the orientation problem now that the position has been found by solving `q1`, `q2` and `q3`.
 
 Since the overall matrix is also the multiplication of all individual DH transforms, the following equation holds true:
 

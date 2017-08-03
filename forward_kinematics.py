@@ -17,11 +17,20 @@ s = {alpha0: 0,     a0: 0,      d1: 0.75,
      alpha6: 0,     a6: 0,      d7: 0.303, q7: 0
 }
 
-T0_1 = Matrix([[cos(q1),                        -sin(q1),            0,              a0],
-               [sin(q1)*cos(alpha0), cos(q1)*cos(alpha0), -sin(alpha0), -sin(alpha0)*d1],
-               [sin(q1)*sin(alpha0), cos(q1)*sin(alpha0),  cos(alpha0),  cos(alpha0)*d1],
-               [                  0,                   0,            0,               1]])
+def create_ht_from_dh_params(alpha, a, d, q):
+    return Matrix([[cos(q),                      -sin(q),           0,             a],
+                   [sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
+                   [sin(q)*sin(alpha), cos(q)*sin(alpha),  cos(alpha),  cos(alpha)*d],
+                   [                0,                 0,           0,             1]])
+
+T0_1 = create_ht_from_dh_params(alpha0, a0, d1, q1)
 T0_1 = T0_1.subs(s)
+
+# T0_1 = Matrix([[cos(q1),                        -sin(q1),            0,              a0],
+#                [sin(q1)*cos(alpha0), cos(q1)*cos(alpha0), -sin(alpha0), -sin(alpha0)*d1],
+#                [sin(q1)*sin(alpha0), cos(q1)*sin(alpha0),  cos(alpha0),  cos(alpha0)*d1],
+#                [                  0,                   0,            0,               1]])
+# T0_1 = T0_1.subs(s)
 
 T1_2 = Matrix([[cos(q2),                        -sin(q2),            0,              a1],
                [sin(q2)*cos(alpha1), cos(q2)*cos(alpha1), -sin(alpha1), -sin(alpha1)*d2],

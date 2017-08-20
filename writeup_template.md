@@ -29,7 +29,8 @@
 [ext_rot_matrix]: ./misc_images/ext_rot_matrix.png
 [wc]: ./misc_images/wc.png
 [q1]: ./misc_images/q1.JPG
-[q2q3]: ./misc_images/q2q3.JPG
+[q2q3]: ./misc_images/q2q3.png
+[successful_result]: ./misc_images/successful_result.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -76,7 +77,7 @@ q[i] is the angle between X[i-1] and X[i] measured about Z[i]. For a revolute jo
 
 #### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
 
-Given the DH table, the individual transform can be determined as follows:
+Given the DH paramters `(alpha[i-1], a[i-1], theta[i], d[i])`, the individual transform can be determined as follows:
 
 ![DH Transform Matrix][dh-transform-matrix]
 
@@ -120,9 +121,7 @@ Assume the overall rotation angles about X, Y and Z axis are `gamma`, `beta` and
 
 ![Extrinsic Rotation Matrix][ext_rot_matrix]
 
-```
-// TODO: Apply a correction matrix maybe?
-```
+The correction matrix is by rotating 90 degrees about y-axis and then rotate -180 degrees about z-axis.
 
 **Position**
 
@@ -144,86 +143,85 @@ The relation between position of WC and `q2` and `q3` can be illustrated as foll
 
 ![theta2 and theta3][q2q3]
 
-To simplify explanation, the origin of the illustrattion is at O2. Also, I define several symbols for easier computation:
+To simplify calculation, the origin of the illustrattion is at O2. Also, I define several symbols for easier computation:
 
 ```
-x = sqrt(wx^2 + wy^2)
+x = sqrt(wx^2 + wy^2) - a1
 z = wz - d1
 delta = arctan(0.054/0.96)
 ```
 
-From the above figure, 
+From the above figure,
 
 ```
 a = pi/2 - q2 - atan2(z/x)
-c = pi - (pi/2 + delta - q3) = pi/2 - delta + q3
+b = pi - (pi/2 + delta + q3) = pi/2 - delta - q3
 ```
 
 Applying Cosine Laws to both equations will get:
 
 ```
 cos(pi/2 - q2 - atan2(z/x)) = (B^2 + C^2 - A^2) / (2 * B * C)
-cos(pi/2 - delta + q3) = (A^2 + C^2 - B^2) / (2 * A * C)
+cos(pi/2 - delta - q3) = (A^2 + C^2 - B^2) / (2 * A * C)
 ```
 
 Thus, `q2` and `q3` can be calculated as follows:
 
 ```
-q2 = arcsin((B^2 + C^2 - A^2) / (2 * B * C)) - atan2(z/x)
-q3 = arcsin((A^2 + C^2 - B^2) / (2 * A * C)) - delta
-```
-
-```
-TODO: select the best solution for q2 and q3 by observing the active workspace of the arm.
+q2 = pi/2 - acos((B^2 + C^2 - A^2) / (2 * B * C)) - atan2(z/x)
+q3 = pi/2 - acos((A^2 + C^2 - B^2) / (2 * A * C)) - delta
 ```
 
 **Orientation**
 
 Note that the IK problem has been decoupled into position and orientation problems, respectively, we can focus on the orientation problem now that the position has been found by solving `q1`, `q2` and `q3`.
 
-Since the overall matrix is also the multiplication of all individual DH transforms, the following equation holds true:
+Since the overall matrix is the product of all individual DH transforms, the following equation holds true:
 
-`R0_6 = R0_1 * R1_2 * R2_3 * R3_4 * R4_5 * R5_6 = Rrpy`,
+`R0_6 = R0_1 * R1_2 * R2_3 * R3_4 * R4_5 * R5_6 = Rrpy`
 
-where `Rrpy` is the overall rotation matrix between `base_link` and `gripper_link`, which has been calculated as above, and `R0_3 = R0_1 * R1_2 * R2_3` can be calculated by applying `q1`, `q2` and `q3`.
-
-Thus, the rotation matrix can be calculated as follows:
+Thus,
 
 `R3_6 = inv(R0_3) * R0_6`.
 
-Furthermore, `R3_6 = R3_4 * R4_5 * R5_6`. It can be obtained by taking the upperleft part from `T3_6`:
+By combining the individual matrices, we can get `R3_6`:
 
 ![HT_3_6][ht_3_6]
 
-Assume `R3_6 = [[r11 r12 r13], [r21 r22 r23], [r31 r32 r33]]`, 
+Assume `R3_6 = [[r11 r12 r13], [r21 r22 r23], [r31 r32 r33]]`, we can get:
 
 ```
+-sin(q5)*cos(q4) = r13
+
+sin(q5)*cos(q6) = r21
+
+-sin(q5)*sin(q6) = r22
+
 cos(q5) = r23
 
-sin(q5) * cos(q6) = r21
-
--cos(q4) * sin(q5) = r13
+sin(q4)*sin(q5) = r33
 ```
 
-=>
+Thus,
 
 ```
-q5 = arccos(r23)
-
-q6 = r21 / sqrt(1 - r23 * r23)
-
-q4 = -r13 / sqrt(1 - r23 * r23)
+q4 = atan2(r33, -r13)
+q5 = atan2(sqrt(r13^2 + r33^2), r23)
+q6 = atan2(-r22, r21)
 ```
 
 ### Project Implementation
 
-#### 1. Fill in the `IK_server.py` file with properly commented python code for calculating Inverse Kinematics based on previously performed Kinematic Analysis. Your code must guide the robot to successfully complete 8/10 pick and place cycles. Briefly discuss the code you implemented and your results. 
+#### 1. Fill in the `IK_server.py` file with properly commented python code for calculating Inverse Kinematics based on previously performed Kinematic Analysis. Your code must guide the robot to successfully complete 8/10 pick and place cycles. Briefly discuss the code you implemented and your results.
 
+In `handle_calculate_IK(req)` function, the variables and matrices are initialized. Then, the points of the planned trajectory are extracted from the request. Then the joint variables are calculated by iterating through the list of the points.
 
-Here I'll talk about the code, what techniques I used, what worked and why, where the implementation might fail and how I might improve it if I were going to pursue this project further.  
+Note that the initialization of DH parameters and the creation the total transform from base frame to gripper frame are outside the iteration, since the parameters and matrices are the same across all points. Besides, the matrices are calculated without calling `simplify` in the matrix multiplication, since the simplification can be very slow and is unnecesarry for the calculation for the joint variables.
 
+To solve the first 3 joint variables, I used `acos`. Though there may be multiple solutions by using `acos`, the return value lies in the range of [0, pi]. Therefore, `q2` and `q3` will be roughly in the range of [-pi/2, pi/2], which seems to be a reasonable range considering the active working space of these joints.
 
-And just for fun, another example image:
-![alt text][image3]
+To solve the last 3 joint variables, I used `atan2` rather than `asin` or `acos`. Using only `asin` or `acos` may result in joint variables resulting the same value but in the wrong quadrant and increases the error in the end-effector position. Besides, the rotation matrix provides enough combination of sin's and cos's so that we can infer the correct quadrant.
 
+Here is the example of a succesful pick and place:
 
+![Succesful Result][successful_result]
